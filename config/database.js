@@ -8,22 +8,28 @@ const connection = await mysql.createConnection({
   database: "sql_harve",
 });
 
-async function executeSql(sql) {
+async function executeSelect(sql) {
   try {
     const [rows] = await connection.query(sql);
     return [rows];
   } catch (err) {
     console.error("Error executing sql:", err);
+    return err;
   }
 }
 
-async function executeSqlWithParams(sql,params) {
+async function executeSelectWithParams(sql, params) {
   try {
-    const result = await connection.query(sql, params);
+    const [result] = await connection.query(sql, params);
     return result;
   } catch (err) {
     console.error("Error executing sql:", err);
+    return err;
   }
 }
 
-export { executeSql, executeSqlWithParams };
+async function executeInsert(sql, params) {
+  return await connection.query(sql, params);
+}
+
+export { executeSelect, executeSelectWithParams, executeInsert };

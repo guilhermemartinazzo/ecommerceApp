@@ -1,15 +1,18 @@
-import * as database from "./config/database.js";
+import * as database from "../config/database.js";
 
-const buscarCategorias = async (req, res) => {
-  const sql = "Select * from categoria_produto";
+const buscarProdutos = async (req, res) => {
+  const sql =
+    "Select p.id,p.nome, p.preco, p.marca,cp.nome as categoria, p.id_categoria as idCategoria from produto p left join categoria_produto cp on cp.id=p.id_categoria";
   const result = await database.executeSelect(sql);
   res.json(result);
 };
 
-const buscarCategoriaPorId = async (req, res) => {
+const buscarProdutoPorId = async (req, res) => {
   const { id } = req.params;
-  const sql = "Select * from categoria_produto where id = ?";
+  const sql =
+    "Select p.id,p.nome, p.preco, p.marca,cp.nome as categoria, p.id_categoria as idCategoria from produto p left join categoria_produto cp on cp.id=p.id_categoria where p.id = ?";
   const result = await database.executeSelectWithParams(sql, id);
+  console.log(result);
   if (result.length > 0) {
     res.json(result);
   } else {
@@ -17,11 +20,17 @@ const buscarCategoriaPorId = async (req, res) => {
   }
 };
 
-const criarCategoria = async (req, res) => {
-  const { nome } = req.body;
-  const sql = "Insert into categoria_produto (nome,ativo) values (?,?)";
+const criarProduto = async (req, res) => {
+  const { nome, preco, marca, idCategoria } = req.body;
+  const sql =
+    "Insert into produto (nome,preco,marca,id_categoria) values (?,?, ?, ?)";
   try {
-    const [result] = await database.executeInsert(sql, [nome, 1]);
+    const [result] = await database.executeInsert(sql, [
+      nome,
+      preco,
+      marca,
+      idCategoria,
+    ]);
     if (result) {
       res.json({ message: "Successfully created", id: result.insertId });
     } else {
@@ -34,12 +43,19 @@ const criarCategoria = async (req, res) => {
   }
 };
 
-const editarCategoria = async (req, res) => {
-  const { nome, ativo } = req.body;
+const editarProduto = async (req, res) => {
+  const { nome, preco, marca, idCategoria } = req.body;
   const { id } = req.params;
-  const sql = "UPDATE categoria_produto set nome = ?, ativo = ? where id = ?";
+  const sql =
+    "UPDATE produto set nome = ?, preco = ?, marca = ?, id_categoria = ? where id = ?";
   try {
-    const [result] = await database.executeInsert(sql, [nome, ativo, id]);
+    const [result] = await database.executeInsert(sql, [
+      nome,
+      preco,
+      marca,
+      idCategoria,
+      id,
+    ]);
     if (result.affectedRows > 0) {
       console.log(result.info);
       res.json({ message: "Success", info: result.info });
@@ -55,9 +71,9 @@ const editarCategoria = async (req, res) => {
   }
 };
 
-const excluirCategoria = async (req, res) => {
+const excluirProduto = async (req, res) => {
   const { id } = req.params;
-  const sql = "DELETE from categoria_produto where id = ?";
+  const sql = "DELETE from produto where id = ?";
   try {
     const [result] = await database.executeInsert(sql, [id]);
     if (result.affectedRows > 0) {
@@ -76,9 +92,9 @@ const excluirCategoria = async (req, res) => {
 };
 
 export {
-  buscarCategorias,
-  buscarCategoriaPorId,
-  criarCategoria,
-  editarCategoria,
-  excluirCategoria,
+  buscarProdutos,
+  buscarProdutoPorId,
+  criarProduto,
+  editarProduto,
+  excluirProduto,
 };
